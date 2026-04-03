@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="fr" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelForge – Agence Digitale</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            forge: {
+              dark: '#0a0e1a',
+              navy: '#0f1629',
+              card: '#151b30',
+              orange: '#e8621c',
+              orangeLight: '#f07a3a',
+              text: '#c8cfe0',
+              white: '#f0f2f7'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Outfit', sans-serif; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(232,98,28,0.3); }
+      50% { box-shadow: 0 0 40px rgba(232,98,28,0.6); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes gridMove {
+      0% { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+
+    .anim-fade-up { animation: fadeUp 0.8s ease-out both; }
+    .anim-fade-in { animation: fadeIn 0.6s ease-out both; }
+    .anim-slide-right { animation: slideRight 0.7s ease-out both; }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    .delay-6 { animation-delay: 0.6s; }
+
+    .hidden-on-load { opacity: 0; }
+
+    .grid-bg {
+      background-image:
+        linear-gradient(rgba(232,98,28,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,98,28,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridMove 20s linear infinite;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #e8621c, #f07a3a);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(232,98,28,0.4);
+    }
+    .btn-secondary {
+      border: 1px solid rgba(232,98,28,0.4);
+      transition: all 0.3s ease;
+    }
+    .btn-secondary:hover {
+      background: rgba(232,98,28,0.1);
+      border-color: #e8621c;
+      transform: translateY(-2px);
+    }
+
+    .service-card {
+      background: linear-gradient(145deg, #151b30, #0f1629);
+      border: 1px solid rgba(232,98,28,0.08);
+      transition: all 0.4s ease;
+    }
+    .service-card:hover {
+      border-color: rgba(232,98,28,0.3);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    .service-card:hover .service-icon {
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    .step-line { background: linear-gradient(to bottom, #e8621c, transparent); }
+
+    .nav-link { position: relative; transition: color 0.3s; }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 2px;
+      background: #e8621c;
+      transition: width 0.3s;
+    }
+    .nav-link:hover::after { width: 100%; }
+    .nav-link:hover { color: #e8621c; }
+
+    .section-title-line {
+      width: 60px; height: 3px;
+      background: linear-gradient(90deg, #e8621c, transparent);
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #e8621c;
+      box-shadow: 0 0 0 3px rgba(232,98,28,0.15);
+    }
+
+    .mobile-menu {
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+    }
+    .mobile-menu.open { transform: translateX(0); }
+
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0e1a; }
+    ::-webkit-scrollbar-thumb { background: #e8621c; border-radius: 4px; }
+
+    /* Form states */
+    .form-sending { opacity: 0.7; pointer-events: none; }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+ </head>
+ <body class="h-full bg-forge-dark text-forge-text overflow-auto">
+  <div id="app" class="w-full h-full">
+
+    <!-- NAV -->
+    <nav id="main-nav" class="fixed top-0 left-0 w-full z-50 transition-all duration-300" style="background:rgba(10,14,26,0.85);backdrop-filter:blur(16px);border-bottom:1px solid rgba(232,98,28,0.06);">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <a href="#hero" class="flex items-center gap-2 text-forge-white font-bold text-xl">
+          <svg width="36" height="36" viewBox="0 0 36 36">
+            <rect width="36" height="36" rx="8" fill="#e8621c"/>
+            <text x="7" y="26" fill="#fff" font-family="Space Mono" font-weight="700" font-size="22">P</text>
+          </svg>
+          <span class="tracking-tight">Pixel<span class="text-forge-orange">Forge</span></span>
+        </a>
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#about" class="nav-link text-sm text-forge-text">À propos</a>
+          <a href="#services" class="nav-link text-sm text-forge-text">Services</a>
+          <a href="#process" class="nav-link text-sm text-forge-text">Processus</a>
+          <a href="#contact" class="btn-primary text-white text-sm font-semibold px-5 py-2.5 rounded-lg">Contact</a>
+        </div>
+        <button id="mobile-toggle" class="md:hidden text-forge-white" aria-label="Menu">
+          <i data-lucide="menu" style="width:28px;height:28px;"></i>
+        </button>
+      </div>
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 h-full w-72 bg-forge-navy border-l border-forge-orange/10 p-8 md:hidden flex flex-col gap-6 z-50">
+        <button id="mobile-close" class="self-end text-forge-white mb-4" aria-label="Fermer">
+          <i data-lucide="x" style="width:28px;height:28px;"></i>
+        </button>
+        <a href="#about" class="text-forge-white text-lg mobile-link">À propos</a>
+        <a href="#services" class="text-forge-white text-lg mobile-link">Services</a>
+        <a href="#process" class="text-forge-white text-lg mobile-link">Processus</a>
+        <a href="#contact" class="btn-primary text-white text-center text-lg font-semibold px-5 py-3 rounded-lg mt-4 mobile-link">Contact</a>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero" class="relative w-full grid-bg" style="min-height:100%;display:flex;align-items:center;">
+      <div class="absolute inset-0" style="background:radial-gradient(ellipse at 30% 40%, rgba(232,98,28,0.08) 0%, transparent 60%);"></div>
+      <div class="max-w-7xl mx-auto px-6 pt-32 pb-20 relative z-10 w-full">
+        <div class="max-w-3xl">
+          <div class="anim-fade-up delay-1 flex items-center gap-2 mb-6">
+            <span class="w-2 h-2 rounded-full bg-forge-orange inline-block"></span>
+            <span class="text-forge-orange text-sm font-medium tracking-wider uppercase" style="font-family:'Space Mono',monospace;">Agence Digitale</span>
+          </div>
+          <h1 class="anim-fade-up delay-2 text-4xl sm:text-5xl lg:text-6xl font-extrabold text-forge-white leading-tight mb-6">
+            PixelForge – Création de sites web qui <span class="text-forge-orange">convertissent</span>
+          </h1>
+          <p class="anim-fade-up delay-3 text-lg sm:text-xl text-forge-text/80 mb-4 max-w-2xl leading-relaxed">Nous concevons des expériences digitales modernes pour booster votre activité</p>
+          <p class="anim-fade-up delay-4 text-base text-forge-orange/80 mb-10 font-medium" style="font-family:'Space Mono',monospace;">✦ Transformez votre présence en ligne en véritable machine à clients</p>
+          <div class="anim-fade-up delay-5 flex flex-wrap gap-4">
+            <a href="#services" class="btn-primary text-white font-semibold px-7 py-3.5 rounded-lg text-base">Voir nos services</a>
+            <a href="#contact" class="btn-secondary text-forge-orange font-semibold px-7 py-3.5 rounded-lg text-base">Obtenir un devis</a>
+          </div>
+        </div>
+      </div>
+      <!-- Decorative floating shapes -->
+      <div class="absolute right-10 top-1/3 hidden lg:block" style="animation:float 6s ease-in-out infinite;">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <rect x="10" y="10" width="100" height="100" rx="20" fill="none" stroke="rgba(232,98,28,0.15)" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="absolute right-40 bottom-1/4 hidden lg:block" style="animation:float 8s ease-in-out infinite 1s;">
+        <svg width="60" height="60" viewBox="0 0 60 60">
+          <circle cx="30" cy="30" r="25" fill="none" stroke="rgba(232,98,28,0.1)" stroke-width="2"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="w-full py-24 relative">
+      <div class="absolute inset-0" style="background:radial-gradient(ellipse at 70% 50%, rgba(232,98,28,0.04) 0%, transparent 50%);"></div>
+      <div class="max-w-7xl mx-auto px-6 relative z-10">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+          <div class="observe-anim hidden-on-load">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="section-title-line"></div>
+              <span class="text-forge-orange text-sm font-medium uppercase tracking-wider" style="font-family:'Space Mono',monospace;">À propos</span>
+            </div>
+            <h2 class="text-3xl sm:text-4xl font-bold text-forge-white mb-6 leading-tight">Une agence dédiée à votre <span class="text-forge-orange">succès digital</span></h2>
+            <p class="text-forge-text/80 leading-relaxed mb-6 text-lg">Nous aidons les entreprises à se démarquer en ligne avec des sites performants et modernes. Chez PixelForge, chaque projet est unique et conçu sur mesure pour répondre à vos objectifs.</p>
+            <div class="space-y-4">
+              <div class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="text-forge-orange mt-1" style="width:20px;height:20px;flex-shrink:0;"></i>
+                <span>Expertise digitale pointue et technologies modernes</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="text-forge-orange mt-1" style="width:20px;height:20px;flex-shrink:0;"></i>
+                <span>Compréhension approfondie des besoins clients</span>
+              </div>
+              <div class="flex items-start gap-3">
+                <i data-lucide="check-circle" class="text-forge-orange mt-1" style="width:20px;height:20px;flex-shrink:0;"></i>
+                <span>Approche 100% orientée résultats</span>
+              </div>
+            </div>
+          </div>
+          <!-- Visual block -->
+          <div class="observe-anim hidden-on-load relative">
+            <div class="bg-forge-card rounded-2xl p-8 border border-forge-orange/10">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-forge-navy rounded-xl p-6 text-center border border-forge-orange/5">
+                  <i data-lucide="code-2" class="text-forge-orange mx-auto mb-3" style="width:32px;height:32px;"></i>
+                  <p class="text-forge-white font-semibold text-lg">Dev</p>
+                  <p class="text-forge-text/50 text-sm">Sur mesure</p>
+                </div>
+                <div class="bg-forge-navy rounded-xl p-6 text-center border border-forge-orange/5">
+                  <i data-lucide="palette" class="text-forge-orange mx-auto mb-3" style="width:32px;height:32px;"></i>
+                  <p class="text-forge-white font-semibold text-lg">Design</p>
+                  <p class="text-forge-text/50 text-sm">Premium</p>
+                </div>
+                <div class="bg-forge-navy rounded-xl p-6 text-center border border-forge-orange/5">
+                  <i data-lucide="trending-up" class="text-forge-orange mx-auto mb-3" style="width:32px;height:32px;"></i>
+                  <p class="text-forge-white font-semibold text-lg">SEO</p>
+                  <p class="text-forge-text/50 text-sm">Optimisé</p>
+                </div>
+                <div class="bg-forge-navy rounded-xl p-6 text-center border border-forge-orange/5">
+                  <i data-lucide="headphones" class="text-forge-orange mx-auto mb-3" style="width:32px;height:32px;"></i>
+                  <p class="text-forge-white font-semibold text-lg">Support</p>
+                  <p class="text-forge-text/50 text-sm">Réactif</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="w-full py-24 bg-forge-navy/50">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16 observe-anim hidden-on-load">
+          <div class="flex items-center justify-center gap-3 mb-4">
+            <div class="section-title-line"></div>
+            <span class="text-forge-orange text-sm font-medium uppercase tracking-wider" style="font-family:'Space Mono',monospace;">Services</span>
+            <div class="section-title-line" style="transform:scaleX(-1);"></div>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-bold text-forge-white">Nos <span class="text-forge-orange">solutions</span> digitales</h2>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="service-card rounded-2xl p-7 observe-anim hidden-on-load">
+            <div class="service-icon w-14 h-14 rounded-xl bg-forge-orange/10 flex items-center justify-center mb-5">
+              <i data-lucide="monitor" class="text-forge-orange" style="width:28px;height:28px;"></i>
+            </div>
+            <h3 class="text-xl font-bold text-forge-white mb-3">Sites Vitrines</h3>
+            <p class="text-forge-text/70 leading-relaxed">Un site professionnel qui reflète votre image et attire de nouveaux clients.</p>
+          </div>
+          <div class="service-card rounded-2xl p-7 observe-anim hidden-on-load">
+            <div class="service-icon w-14 h-14 rounded-xl bg-forge-orange/10 flex items-center justify-center mb-5">
+              <i data-lucide="refresh-cw" class="text-forge-orange" style="width:28px;height:28px;"></i>
+            </div>
+            <h3 class="text-xl font-bold text-forge-white mb-3">Refonte de Site</h3>
+            <p class="text-forge-text/70 leading-relaxed">Modernisez votre site existant pour le rendre performant et actuel.</p>
+          </div>
+          <div class="service-card rounded-2xl p-7 observe-anim hidden-on-load">
+            <div class="service-icon w-14 h-14 rounded-xl bg-forge-orange/10 flex items-center justify-center mb-5">
+              <i data-lucide="search" class="text-forge-orange" style="width:28px;height:28px;"></i>
+            </div>
+            <h3 class="text-xl font-bold text-forge-white mb-3">Optimisation SEO</h3>
+            <p class="text-forge-text/70 leading-relaxed">Soyez visible sur Google et attirez du trafic qualifié naturellement.</p>
+          </div>
+          <div class="service-card rounded-2xl p-7 observe-anim hidden-on-load">
+            <div class="service-icon w-14 h-14 rounded-xl bg-forge-orange/10 flex items-center justify-center mb-5">
+              <i data-lucide="figma" class="text-forge-orange" style="width:28px;height:28px;"></i>
+            </div>
+            <h3 class="text-xl font-bold text-forge-white mb-3">Design UX/UI</h3>
+            <p class="text-forge-text/70 leading-relaxed">Des interfaces intuitives et esthétiques pour une expérience utilisateur optimale.</p>
+          </div>
+          <div class="service-card rounded-2xl p-7 observe-anim hidden-on-load">
+            <div class="service-icon w-14 h-14 rounded-xl bg-forge-orange/10 flex items-center justify-center mb-5">
+              <i data-lucide="shield" class="text-forge-orange" style="width:28px;height:28px;"></i>
+            </div>
+            <h3 class="text-xl font-bold text-forge-white mb-3">Maintenance &amp; Suivi</h3>
+            <p class="text-forge-text/70 leading-relaxed">Votre site reste à jour, sécurisé et performant en continu.</p>
+          </div>
+          <div class="service-card rounded-2xl p-7 observe-anim hidden-on-load">
+            <div class="service-icon w-14 h-14 rounded-xl bg-forge-orange/10 flex items-center justify-center mb-5">
+              <i data-lucide="zap" class="text-forge-orange" style="width:28px;height:28px;"></i>
+            </div>
+            <h3 class="text-xl font-bold text-forge-white mb-3">Automatisation</h3>
+            <p class="text-forge-text/70 leading-relaxed">Outils digitaux pour automatiser et simplifier votre quotidien.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROCESS -->
+    <section id="process" class="w-full py-24">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16 observe-anim hidden-on-load">
+          <div class="flex items-center justify-center gap-3 mb-4">
+            <div class="section-title-line"></div>
+            <span class="text-forge-orange text-sm font-medium uppercase tracking-wider" style="font-family:'Space Mono',monospace;">Processus</span>
+            <div class="section-title-line" style="transform:scaleX(-1);"></div>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-bold text-forge-white">Notre <span class="text-forge-orange">méthode</span></h2>
+        </div>
+        <div class="max-w-2xl mx-auto space-y-0 relative">
+          <div class="absolute left-6 top-8 bottom-8 w-px bg-gradient-to-b from-forge-orange/40 to-transparent hidden sm:block"></div>
+          <div class="flex gap-6 items-start observe-anim hidden-on-load py-6">
+            <div class="w-12 h-12 rounded-full bg-forge-orange flex items-center justify-center text-white font-bold text-lg flex-shrink-0 relative z-10">1</div>
+            <div>
+              <h3 class="text-lg font-bold text-forge-white mb-1">Analyse du besoin</h3>
+              <p class="text-forge-text/60">Échange approfondi pour comprendre vos objectifs et votre marché.</p>
+            </div>
+          </div>
+          <div class="flex gap-6 items-start observe-anim hidden-on-load py-6">
+            <div class="w-12 h-12 rounded-full bg-forge-orange flex items-center justify-center text-white font-bold text-lg flex-shrink-0 relative z-10">2</div>
+            <div>
+              <h3 class="text-lg font-bold text-forge-white mb-1">Création du design</h3>
+              <p class="text-forge-text/60">Maquettes modernes validées avec vous avant développement.</p>
+            </div>
+          </div>
+          <div class="flex gap-6 items-start observe-anim hidden-on-load py-6">
+            <div class="w-12 h-12 rounded-full bg-forge-orange flex items-center justify-center text-white font-bold text-lg flex-shrink-0 relative z-10">3</div>
+            <div>
+              <h3 class="text-lg font-bold text-forge-white mb-1">Développement</h3>
+              <p class="text-forge-text/60">Code propre, rapide et optimisé pour tous les appareils.</p>
+            </div>
+          </div>
+          <div class="flex gap-6 items-start observe-anim hidden-on-load py-6">
+            <div class="w-12 h-12 rounded-full bg-forge-orange flex items-center justify-center text-white font-bold text-lg flex-shrink-0 relative z-10">4</div>
+            <div>
+              <h3 class="text-lg font-bold text-forge-white mb-1">Mise en ligne</h3>
+              <p class="text-forge-text/60">Lancement de votre site avec configuration complète.</p>
+            </div>
+          </div>
+          <div class="flex gap-6 items-start observe-anim hidden-on-load py-6">
+            <div class="w-12 h-12 rounded-full bg-forge-orange flex items-center justify-center text-white font-bold text-lg flex-shrink-0 relative z-10">5</div>
+            <div>
+              <h3 class="text-lg font-bold text-forge-white mb-1">Suivi &amp; optimisation</h3>
+              <p class="text-forge-text/60">Accompagnement continu pour améliorer vos performances.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="w-full py-20 bg-forge-navy/50">
+      <div class="max-w-4xl mx-auto px-6 text-center observe-anim hidden-on-load">
+        <div class="bg-gradient-to-br from-forge-orange/10 to-forge-card border border-forge-orange/15 rounded-3xl p-12">
+          <h2 class="text-3xl sm:text-4xl font-bold text-forge-white mb-4">Prêt à booster votre <span class="text-forge-orange">activité</span> ?</h2>
+          <p class="text-forge-text/70 mb-8 text-lg">Discutons de votre projet et transformons vos ambitions en résultats concrets.</p>
+          <a href="#contact" class="btn-primary inline-block text-white font-semibold px-8 py-4 rounded-lg text-lg">Demander un devis gratuit</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="w-full py-24">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16 observe-anim hidden-on-load">
+          <div class="flex items-center justify-center gap-3 mb-4">
+            <div class="section-title-line"></div>
+            <span class="text-forge-orange text-sm font-medium uppercase tracking-wider" style="font-family:'Space Mono',monospace;">Contact</span>
+            <div class="section-title-line" style="transform:scaleX(-1);"></div>
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-bold text-forge-white">Parlons de votre <span class="text-forge-orange">projet</span></h2>
+          <p class="text-forge-text/60 mt-4">Réponse rapide garantie</p>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-12">
+          <div class="observe-anim hidden-on-load">
+            <!--
+              ============================================================
+              FORMSPREE — Comment activer l'envoi d'email :
+              1. Créez un compte gratuit sur https://formspree.io
+              2. Créez un nouveau formulaire dans votre dashboard
+              3. Copiez votre endpoint (ex: https://formspree.io/f/xxxxxxxx)
+              4. Remplacez YOUR_FORMSPREE_ENDPOINT ci-dessous par cet URL
+              ============================================================
+            -->
+            <form id="contact-form" action="https://formspree.io/f/xgopnzop" method="POST" class="space-y-5">
+              <!-- Champ anti-spam honeypot (invisible, ne pas supprimer) -->
+              <input type="text" name="_gotcha" style="display:none">
+              <!-- Redirection après envoi (optionnel) -->
+              <!-- <input type="hidden" name="_next" value="https://votresite.com/merci"> -->
+
+              <div>
+                <label for="cf-name" class="block text-forge-text/80 text-sm mb-2 font-medium">Nom complet</label>
+                <input type="text" id="cf-name" name="name" required
+                  class="w-full bg-forge-card border border-forge-orange/10 rounded-xl px-5 py-3.5 text-forge-white placeholder-forge-text/30 transition-all"
+                  placeholder="Votre nom">
+              </div>
+              <div>
+                <label for="cf-email" class="block text-forge-text/80 text-sm mb-2 font-medium">Email</label>
+                <input type="email" id="cf-email" name="email" required
+                  class="w-full bg-forge-card border border-forge-orange/10 rounded-xl px-5 py-3.5 text-forge-white placeholder-forge-text/30 transition-all"
+                  placeholder="votre@email.com">
+              </div>
+              <div>
+                <label for="cf-subject" class="block text-forge-text/80 text-sm mb-2 font-medium">Sujet</label>
+                <input type="text" id="cf-subject" name="subject"
+                  class="w-full bg-forge-card border border-forge-orange/10 rounded-xl px-5 py-3.5 text-forge-white placeholder-forge-text/30 transition-all"
+                  placeholder="Création de site, refonte...">
+              </div>
+              <div>
+                <label for="cf-message" class="block text-forge-text/80 text-sm mb-2 font-medium">Message</label>
+                <textarea id="cf-message" name="message" rows="5" required
+                  class="w-full bg-forge-card border border-forge-orange/10 rounded-xl px-5 py-3.5 text-forge-white placeholder-forge-text/30 transition-all resize-none"
+                  placeholder="Décrivez votre projet..."></textarea>
+              </div>
+              <button type="submit" id="submit-btn" class="btn-primary w-full text-white font-semibold py-4 rounded-xl text-lg flex items-center justify-center gap-2">
+                <i data-lucide="send" style="width:20px;height:20px;"></i>
+                <span id="btn-label">Demander un devis</span>
+              </button>
+            </form>
+
+            <!-- Messages de statut -->
+            <div id="form-success" class="hidden mt-4 bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center text-green-400 font-medium">
+              ✅ Message envoyé ! Nous vous recontactons sous 24h.
+            </div>
+            <div id="form-error" class="hidden mt-4 bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-center text-red-400 font-medium">
+              ❌ Une erreur s'est produite. Réessayez ou écrivez directement à <span class="underline">devyxstudio@gmail.com</span>
+            </div>
+            <div id="form-setup" class="hidden mt-4 bg-forge-orange/10 border border-forge-orange/20 rounded-xl p-4 text-center text-forge-orange font-medium text-sm">
+              ⚙️ Formulaire non configuré — remplacez <strong>YOUR_FORMSPREE_ENDPOINT</strong> dans le code par votre endpoint Formspree.
+            </div>
+          </div>
+
+          <div class="observe-anim hidden-on-load space-y-8">
+            <div>
+              <h3 class="text-xl font-bold text-forge-white mb-6">Informations de contact</h3>
+              <div class="space-y-5">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-forge-orange/10 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="mail" class="text-forge-orange" style="width:22px;height:22px;"></i>
+                  </div>
+                  <div>
+                    <p class="text-forge-text/50 text-sm">Email</p>
+                    <p class="text-forge-white font-medium">devyxstudio@gmail.com</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-forge-orange/10 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="clock" class="text-forge-orange" style="width:22px;height:22px;"></i>
+                  </div>
+                  <div>
+                    <p class="text-forge-text/50 text-sm">Délai de réponse</p>
+                    <p class="text-forge-white font-medium">Moins de 24h</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 rounded-xl bg-forge-orange/10 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="map-pin" class="text-forge-orange" style="width:22px;height:22px;"></i>
+                  </div>
+                  <div>
+                    <p class="text-forge-text/50 text-sm">Zone d'intervention</p>
+                    <p class="text-forge-white font-medium">France entière (100% en ligne)</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-forge-card border border-forge-orange/8 rounded-2xl p-6">
+              <p class="text-forge-orange font-semibold mb-2">💡 Le saviez-vous ?</p>
+              <p class="text-forge-text/70 text-sm leading-relaxed">72% des consommateurs visitent le site web d'une entreprise avant de faire appel à ses services. Un site professionnel est votre meilleur investissement.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="w-full py-12 border-t border-forge-orange/8">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div class="flex items-center gap-2">
+            <svg width="28" height="28" viewBox="0 0 36 36">
+              <rect width="36" height="36" rx="8" fill="#e8621c"/>
+              <text x="7" y="26" fill="#fff" font-family="Space Mono" font-weight="700" font-size="22">P</text>
+            </svg>
+            <span class="text-forge-white font-bold">Pixel<span class="text-forge-orange">Forge</span></span>
+          </div>
+          <div class="flex items-center gap-6 text-sm text-forge-text/50">
+            <span>devyxstudio@gmail.com</span>
+            <span>|</span>
+            <span>Mentions légales</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <a href="#" class="w-10 h-10 rounded-lg bg-forge-card border border-forge-orange/10 flex items-center justify-center text-forge-text/50 hover:text-forge-orange hover:border-forge-orange/30 transition-all" aria-label="Instagram">
+              <i data-lucide="instagram" style="width:18px;height:18px;"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-lg bg-forge-card border border-forge-orange/10 flex items-center justify-center text-forge-text/50 hover:text-forge-orange hover:border-forge-orange/30 transition-all" aria-label="Facebook">
+              <i data-lucide="facebook" style="width:18px;height:18px;"></i>
+            </a>
+            <a href="#" class="w-10 h-10 rounded-lg bg-forge-card border border-forge-orange/10 flex items-center justify-center text-forge-text/50 hover:text-forge-orange hover:border-forge-orange/30 transition-all" aria-label="LinkedIn">
+              <i data-lucide="linkedin" style="width:18px;height:18px;"></i>
+            </a>
+          </div>
+        </div>
+        <p class="text-center text-forge-text/30 text-sm mt-8">© 2025 PixelForge. Tous droits réservés.</p>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('hidden-on-load');
+          entry.target.classList.add('anim-fade-up');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.observe-anim').forEach(el => observer.observe(el));
+
+    // Mobile menu
+    document.getElementById('mobile-toggle').addEventListener('click', () => {
+      document.getElementById('mobile-menu').classList.add('open');
+    });
+    document.getElementById('mobile-close').addEventListener('click', () => {
+      document.getElementById('mobile-menu').classList.remove('open');
+    });
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => document.getElementById('mobile-menu').classList.remove('open'));
+    });
+
+    // Contact form — envoi via Formspree (AJAX)
+    const form = document.getElementById('contact-form');
+    const btnLabel = document.getElementById('btn-label');
+    const submitBtn = document.getElementById('submit-btn');
+    const successMsg = document.getElementById('form-success');
+    const errorMsg = document.getElementById('form-error');
+    const setupMsg = document.getElementById('form-setup');
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const action = form.getAttribute('action');
+
+      // Détection si le formulaire n'est pas encore configuré
+      if (!action || action === 'YOUR_FORMSPREE_ENDPOINT') {
+        setupMsg.classList.remove('hidden');
+        setTimeout(() => setupMsg.classList.add('hidden'), 6000);
+        return;
+      }
+
+      // État "envoi en cours"
+      submitBtn.disabled = true;
+      btnLabel.innerHTML = '<span class="spinner"></span> Envoi en cours...';
+      successMsg.classList.add('hidden');
+      errorMsg.classList.add('hidden');
+
+      try {
+        const data = new FormData(form);
+        const response = await fetch(action, {
+          method: 'POST',
+          body: data,
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+          // Succès
+          form.reset();
+          successMsg.classList.remove('hidden');
+          successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          setTimeout(() => successMsg.classList.add('hidden'), 6000);
+        } else {
+          throw new Error('Erreur serveur');
+        }
+      } catch (err) {
+        errorMsg.classList.remove('hidden');
+        setTimeout(() => errorMsg.classList.add('hidden'), 6000);
+      } finally {
+        submitBtn.disabled = false;
+        btnLabel.innerHTML = '<i data-lucide="send" style="width:20px;height:20px;"></i> Demander un devis';
+        lucide.createIcons();
+      }
+    });
+
+    lucide.createIcons();
+  </script>
+ </body>
+</html>
